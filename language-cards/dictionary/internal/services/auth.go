@@ -1,6 +1,20 @@
 package services
 
-func getUserIdFromRequest(r *http.Request) (int, error) {
+import (
+	"database/sql"
+	"dictionary/internal/config"
+	"dictionary/internal/models"
+	"errors"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
+)
+
+func GetUserIdFromRequest(r *http.Request) (int, error) {
     authHeader := r.Header.Get("Authorization")
     if authHeader == "" {
         return 0, errors.New("authorization header is missing")
@@ -12,10 +26,10 @@ func getUserIdFromRequest(r *http.Request) (int, error) {
     }
 
     tknStr := parts[1]
-    claims := &Claims{}
+    claims := &models.Claims{}
 
     tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-        return jwtKey, nil
+        return config.JwtKey, nil
     })
     if err != nil {
         if err == jwt.ErrSignatureInvalid {
@@ -36,7 +50,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func usernameExists(username string, db *sql.DB) (bool, error) {
+func UsernameExists(username string, db *sql.DB) (bool, error) {
     var exists bool
     err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&exists)
     if err != nil {

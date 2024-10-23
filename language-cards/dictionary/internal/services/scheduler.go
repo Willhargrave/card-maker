@@ -1,11 +1,19 @@
 package services 
 
-func resetSeenDaily(db *sql.DB) error {
+
+import (
+	"log"
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3" 
+	"time"
+)
+
+func ResetSeenDaily(db *sql.DB) error {
 	_, err := db.Exec("UPDATE flashcard SET seen = false")
 	return err
 }
 
-func startDailyResetTask(db *sql.DB) {
+func StartDailyResetTask(db *sql.DB) {
 	go func() {
 		for {
 			now:= time.Now()
@@ -14,7 +22,7 @@ func startDailyResetTask(db *sql.DB) {
 
 			time.Sleep(durationUntilMidnight)
 
-			if err := resetSeenDaily(db); err != nil {
+			if err := ResetSeenDaily(db); err != nil {
 				log.Println("Error resetting seen status:", err)
 			}
 		}

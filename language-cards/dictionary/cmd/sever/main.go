@@ -1,18 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"log"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3" 
-	"time"
-	"golang.org/x/crypto/bcrypt"
-	"github.com/dgrijalva/jwt-go"
-	"errors"
-    "strings"
-	"strconv"
+	"dictionary/internal/database"
+	"dictionary/internal/middleware"
+	"dictionary/internal/handlers"
+	"dictionary/internal/services"
+
 )
 
 func main() {
@@ -23,9 +21,9 @@ func main() {
     }
     defer db.Close()
     
-	createUserTable(db)
-	createFlashcardTable(db)
-	createFlashcardSetsTable(db)
+	database.CreateUserTable(db)
+	database.CreateFlashcardTable(db)
+	database.CreateFlashcardSetsTable(db)
 
 
 
@@ -36,84 +34,84 @@ func main() {
  
     http.HandleFunc("/add-word", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-        addWordHandler(w, r, db)
+        handlers.AddWordHandler(w, r, db)
     })
 
     http.HandleFunc("/update-word", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-        updateWordHandler(w, r, db)
+        handlers.UpdateWordHandler(w, r, db)
     })
 	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		searchHandler(w, r, db)
+		handlers.SearchHandler(w, r, db)
 	})
 	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		deleteWordHandler(w, r, db)
+		handlers.DeleteWordHandler(w, r, db)
 	})
 	http.HandleFunc("/show-words", func(w http.ResponseWriter, r *http.Request) {
-		showWordsHandler(w, r, db)
+		handlers.ShowWordsHandler(w, r, db)
 	})
 
 	http.HandleFunc("/seen", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		updateSeenHandler(w, r, db)
+		handlers.UpdateSeenHandler(w, r, db)
 	})
 
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		registerHandler(w, r, db)
+		handlers.RegisterHandler(w, r, db)
 	})
 
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		loginHandler(w, r, db)
+		handlers.LoginHandler(w, r, db)
 	})
     
 	http.HandleFunc("/create-set", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		createSetHandler(w, r, db)
+		handlers.CreateSetHandler(w, r, db)
 	})
 
 	http.HandleFunc("/fetch-sets", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			enableCors(&w)
+			middleware.EnableCors(&w)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		fetchUserSetsHandler(w, r, db)
+		handlers.FetchUserSetsHandler(w, r, db)
 	})
 	
 
@@ -123,7 +121,7 @@ func main() {
     // }
 
 
-	startDailyResetTask(db)
+	services.StartDailyResetTask(db)
 	
     // Only one call to ListenAndServe
     fmt.Println("Starting server on :8080")

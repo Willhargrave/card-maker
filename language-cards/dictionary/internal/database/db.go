@@ -1,4 +1,13 @@
-func createUserTable(db *sql.DB) {
+package database
+
+
+import (
+	"fmt"
+	"log"
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3" 
+)
+func CreateUserTable(db *sql.DB) {
     createTableSQL := `CREATE TABLE IF NOT EXISTS Users (
         "UserID" INTEGER PRIMARY KEY AUTOINCREMENT,
         "username" TEXT UNIQUE NOT NULL,
@@ -12,7 +21,7 @@ func createUserTable(db *sql.DB) {
     fmt.Println("User table created")
 }
 
-func createFlashcardTable(db *sql.DB) {
+func CreateFlashcardTable(db *sql.DB) {
 	
 	createTableSQL := `CREATE TABLE IF NOT EXISTS flashcard (
 		"word" TEXT NOT NULL,
@@ -31,7 +40,7 @@ func createFlashcardTable(db *sql.DB) {
 	fmt.Println("Flashcard Table created")
 }
 
-func createFlashcardSetsTable(db *sql.DB) {
+func CreateFlashcardSetsTable(db *sql.DB) {
 
 	createTableSQL := `CREATE TABLE IF NOT EXISTS FlashcardSets (
 		"setId" INTEGER PRIMARY KEY AUTOINCREMENT,

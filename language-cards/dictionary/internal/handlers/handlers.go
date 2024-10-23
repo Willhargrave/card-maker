@@ -1,7 +1,24 @@
-package handlers 
+package handlers
 
-func searchHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+import (
+	"database/sql"
+	"dictionary/internal/config"
+	"dictionary/internal/middleware"
+	"dictionary/internal/models"
+	"dictionary/internal/repository"
+	"dictionary/internal/services"
+	"encoding/json"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+func SearchHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
 
     if r.Method != "GET" {
         http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
@@ -10,10 +27,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
     word := r.URL.Query().Get("word")
 
-    definition, err := SearchDB(db, word) 
+    definition, err := repository.SearchDB(db, word) 
     if err != nil {
 		log.Printf("Error searching for word '%s': %v", word, err)
-		if err == ErrWordDoesNotExist {
+		if err == services.ErrWordDoesNotExist {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -22,11 +39,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(definition) // Ensure this is the correct response format
+    json.NewEncoder(w).Encode(definition)
 }
 
-func addWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+func AddWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
     
 
     if r.Method != "POST" {
@@ -41,9 +58,6 @@ func addWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         UserID     int    `json:"UserID"` 
     }
 
-   
-
-    // Decode the JSON body into the struct
     if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
         log.Println("Error decoding request:", err)
         http.Error(w, "Error reading request", http.StatusBadRequest)
@@ -52,15 +66,11 @@ func addWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     
     log.Printf("Received request data: %+v\n", request)
 
-    // Check if the word and definition are not empty
     if request.Word == "" || request.Definition == "" || request.SetID == 0 || request.UserID == 0 {
         http.Error(w, "Required fields cannot be empty", http.StatusBadRequest)
         return
     }
-
-
-    // Call AddWordToDB to add the word to the database
-    err := AddWordToDB(db, request.Word, request.Definition, request.SetID, request.UserID)
+    err := repository.AddWordToDB(db, request.Word, request.Definition, request.SetID, request.UserID)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -72,9 +82,9 @@ func addWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     json.NewEncoder(w).Encode("Word added successfully")
 }
 
-func updateWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func UpdateWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	enableCors(&w)
+	middleware.EnableCors(&w)
 
 	if r.Method != "PUT" {
 		http.Error(w, "Only PUT method is allowed", http.StatusMethodNotAllowed)
@@ -84,8 +94,8 @@ func updateWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         OriginalWord string `json:"originalWord"`
         Word         string `json:"word"`
         Definition   string `json:"definition"`
-        UserID       int    `json:"UserID"` // Add this line
-        SetID        int    `json:"setId"`  // Add this line
+        UserID       int    `json:"UserID"` 
+        SetID        int    `json:"setId"`  
     }
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -99,10 +109,10 @@ func updateWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     }
 
 
-	err := UpdateWordToDB(db, request.OriginalWord, request.Word, request.Definition, request.UserID, request.SetID)
+	err := repository.UpdateWordToDB(db, request.OriginalWord, request.Word, request.Definition, request.UserID, request.SetID)
 	if err != nil {
 
-		if err == ErrWordDoesNotExist {
+		if err == services.ErrWordDoesNotExist {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -114,9 +124,9 @@ func updateWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode("word updated successfully")
 }
 
-func deleteWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func DeleteWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	enableCors(&w)
+	middleware.EnableCors(&w)
 
 	if r.Method != "DELETE" {
 		http.Error(w, "Only DELETE method is allowed", http.StatusMethodNotAllowed)
@@ -125,8 +135,8 @@ func deleteWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	 
 	var request struct {  
         Word         string `json:"word"`
-        UserID       int    `json:"UserID"` // Add this line
-        SetID        int    `json:"setId"`  // Add this line
+        UserID       int    `json:"UserID"` 
+        SetID        int    `json:"setId"`  
     }
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -139,10 +149,10 @@ func deleteWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         return
     }
     
-	err := DeleteWordFromDB(db, request.Word, request.UserID, request.SetID) 
+	err := repository.DeleteWordFromDB(db, request.Word, request.UserID, request.SetID) 
 	
 	if err != nil {
-		if err == ErrWordDoesNotExist {
+		if err == services.ErrWordDoesNotExist {
 			http.Error(w, "Word does not exist", http.StatusNotFound)
 		} else {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -152,10 +162,10 @@ func deleteWordHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode("Word deleted succesfully") // Ensure this is the correct response format
+    json.NewEncoder(w).Encode("Word deleted succesfully")
 }
-func showWordsHandler {
-enableCors(&w)
+func ShowWordsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+middleware.EnableCors(&w)
 
 if r.Method != "GET" {
 	http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
@@ -171,7 +181,7 @@ if err != nil {
 }
 setId, _ := strconv.Atoi(queryValues.Get("setId")) // setId is optional
 
-words, err := ShowAllWordsFromDB(db, UserID, setId)
+words, err := repository.ShowAllWordsFromDB(db, UserID, setId)
 if err != nil {
 	http.Error(w, "Internal server error", http.StatusInternalServerError)
 	return
@@ -180,8 +190,8 @@ if err != nil {
 w.Header().Set("Content-Type", "application/json")
 json.NewEncoder(w).Encode(words)
 }
-func updateSeenHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+func UpdateSeenHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
 
     if r.Method != "POST" {
         http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -205,7 +215,7 @@ func updateSeenHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         return
     }
 
-    if err := updateSeenInDB(db, request.Word, request.UserID, request.SetID); err != nil {
+    if err := repository.UpdateSeenInDB(db, request.Word, request.UserID, request.SetID); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -215,8 +225,8 @@ func updateSeenHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     json.NewEncoder(w).Encode("Word marked as seen successfully")
 }
 
-func createSetHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	enableCors(&w)
+func CreateSetHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	middleware.EnableCors(&w)
 
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -238,7 +248,7 @@ func createSetHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	if err := createSetInDB(db, request.UserID, request.SetName); err != nil {
+	if err := repository.CreateSetInDB(db, request.UserID, request.SetName); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -249,8 +259,8 @@ func createSetHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 }
 
-func fetchUserSetsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+func FetchUserSetsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
 
     if r.Method != "GET" {
         http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
@@ -261,7 +271,7 @@ func fetchUserSetsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
     log.Println("Received fetch sets request")
 
     // Extract the user ID from the request
-    UserID, err := getUserIdFromRequest(r)
+    UserID, err := services.GetUserIdFromRequest(r)
     if err != nil {
         // Log the error if any
         log.Printf("Error getting user ID from request: %v\n", err)
@@ -269,29 +279,24 @@ func fetchUserSetsHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         return
     }
 
-    // Log the extracted UserID for confirmation
     log.Printf("Fetched User ID: %d from token\n", UserID)
 
-    // Proceed with fetching the user's sets using the UserID
-    userSets, err := fetchUserSetsFromDB(db, UserID)
+
+    userSets, err := repository.FetchUserSetsFromDB(db, UserID)
     if err != nil {
-        // Log the database error
         log.Printf("Error fetching user sets from DB: %v\n", err)
         http.Error(w, "Internal server error", http.StatusInternalServerError)
         return
     }
 
-    // Log the fetched sets for confirmation
     log.Printf("Fetched sets for User ID %d: %+v\n", UserID, userSets)
-
-    // Respond with the user sets
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(userSets)
 }
 
 
-func registerHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+func RegisterHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
 
     if r.Method != "POST" {
         http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -314,14 +319,14 @@ func registerHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
         return
     }
 
-    hashedPassword, err := HashPassword(request.Password)
+    hashedPassword, err := services.HashPassword(request.Password)
     if err != nil {
         log.Println("Error hashing password:", err)
         http.Error(w, "Error processing the password", http.StatusInternalServerError)
         return
     }
 
-    exists, err := usernameExists(request.Username, db)
+    exists, err := services.UsernameExists(request.Username, db)
     if err != nil {
         // Handle the error
         http.Error(w, "Error checking username", http.StatusInternalServerError)
@@ -354,8 +359,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 
 
-func loginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-    enableCors(&w)
+func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+    middleware.EnableCors(&w)
 
     if r.Method != "POST" {
         http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -383,10 +388,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	log.Printf("Fetched User: Username: %s, UserID: %d\n", request.Username, userID)
 
 
-    if CheckPasswordHash(request.Password, storedHash) {
+    if services.CheckPasswordHash(request.Password, storedHash) {
         expirationTime := time.Now().Add(30 * time.Minute)
 
-        claims := &Claims{
+        claims := &models.Claims{
             UserID: userID, // Now fetching from DB
             Username: request.Username,
             StandardClaims: jwt.StandardClaims{
@@ -396,7 +401,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
         token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-        tokenString, err := token.SignedString(jwtKey)
+        tokenString, err := token.SignedString(config.JwtKey)
         if err != nil {
             http.Error(w, "Error creating the token", http.StatusInternalServerError)
             return

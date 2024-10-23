@@ -1,5 +1,16 @@
 package repository 
 
+
+import (
+	"log"
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3" 
+	"errors"
+	"dictionary/internal/models"
+	"dictionary/internal/services"
+   
+)
+
 func SearchDB(db *sql.DB, word string) (string, error) {
 	var exists bool
 		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM flashcard WHERE word = ?)", word).Scan(&exists)
@@ -7,7 +18,7 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 	   return "", err
    }
    if !exists {
-	   return "", ErrWordDoesNotExist
+	   return "", services.ErrWordDoesNotExist
    }
    var definition string
 	   err = db.QueryRow("SELECT definition FROM flashcard WHERE word = ?", word).Scan(&definition)
@@ -26,7 +37,7 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 		   return err
 	   }
 	   if exists {
-		   return ErrWordExists
+		   return services.ErrWordExists
 	   }
 	   _, err = db.Exec("INSERT INTO flashcard (word, definition, UserID, setId) VALUES (?, ?, ?, ?)", word, definition, UserID, setId)
 	   return err
@@ -54,14 +65,14 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 		   return err
 	   }
 	   if !exists {
-		   return ErrWordDoesNotExist
+		   return services.ErrWordDoesNotExist
 	   }
    
 	   _, err = db.Exec("DELETE FROM flashcard WHERE word = ? AND UserID = ? AND setId = ?", word, UserID, setId)
 	   return err
    }
 
-   func ShowAllWordsFromDB(db *sql.DB, UserID, setId int) ([]WordDefinition, error) {
+   func ShowAllWordsFromDB(db *sql.DB, UserID, setId int) ([]models.WordDefinition, error) {
 	   var rows *sql.Rows
 	   var err error
    
@@ -76,9 +87,9 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 	   }
 	   defer rows.Close()
    
-	   var words []WordDefinition
+	   var words []models.WordDefinition
 	   for rows.Next() {
-		   var wd WordDefinition
+		   var wd models.WordDefinition
 		   if err := rows.Scan(&wd.Word, &wd.Definition, &wd.Seen); err != nil {
 			   return nil, err
 		   }
@@ -91,7 +102,7 @@ func SearchDB(db *sql.DB, word string) (string, error) {
    }
    
    
-   func updateSeenInDB(db *sql.DB, word string, userID, setId int) error {
+   func UpdateSeenInDB(db *sql.DB, word string, userID, setId int) error {
 	   var query string
 	   if setId > 0 {
 		   query = "UPDATE flashcard SET seen = true WHERE word = ? AND userID = ? AND setId = ?"
@@ -104,7 +115,7 @@ func SearchDB(db *sql.DB, word string) (string, error) {
    }
    
    
-   func createSetInDB(db *sql.DB, userID int, setName string) error {
+   func CreateSetInDB(db *sql.DB, userID int, setName string) error {
 	   stmt, err := db.Prepare("INSERT INTO flashcardSets (userID, setName) VALUES (?, ?)")
    
 	   if err != nil {
@@ -116,7 +127,7 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 	   return err
    }
    
-   func fetchUserSetsFromDB(db *sql.DB, UserID int) ([]Set, error) {
+   func FetchUserSetsFromDB(db *sql.DB, UserID int) ([]models.Set, error) {
 	   log.Printf("Fetching sets for UserID: %d\n", UserID)
    
 	   rows, err := db.Query("SELECT setId, setName FROM flashcardSets WHERE UserID = ?", UserID)
@@ -126,9 +137,9 @@ func SearchDB(db *sql.DB, word string) (string, error) {
 	   }
 	   defer rows.Close()
    
-	   var sets []Set
+	   var sets []models.Set
 	   for rows.Next() {
-		   var set Set
+		   var set models.Set
 		   if err := rows.Scan(&set.SetId, &set.SetName); err != nil {
 			   log.Printf("Error scanning row: %v\n", err)
 			   return nil, err
