@@ -6,7 +6,7 @@ const updateWord = async (originalWord, newWord, newDefinition, userID, setId) =
             originalWord,
             word: newWord,
             definition: newDefinition,
-            userID,
+            UserID: userID,
             setId
         });
         return response.data;

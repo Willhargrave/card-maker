@@ -9,16 +9,16 @@ function AddWord({ onAdd, onClose, currentUser, currentSet }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(currentSet)
+    console.log("currentSet:", currentSet);  
+    console.log("setId being passed:", currentSet.setId); 
+
     try {
-      console.log("Sending data:", { 
-        word, 
-        definition, 
-        userID: currentUser?.userID, 
-        setId: currentSet?.setId 
-      });
-        await addWord(word, definition, currentUser.userID, currentSet);
-        console.log("Adding word with:", { word, definition, userID: currentUser.userID, setId: currentSet });
+        await addWord(
+          word, 
+          definition, 
+          currentUser.userID, 
+          currentSet.setId
+        );
         onAdd(word, definition, currentUser.userID, currentSet.setId);
         setMessage(`${word} added successfully!`);
         onClose();

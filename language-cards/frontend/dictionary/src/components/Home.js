@@ -26,14 +26,12 @@ const Home = () => {
     const unseenWords = Array.isArray(words) ? words.filter(wordObj => !wordObj.seen) : [];
     const token = localStorage.getItem('token');
     
-    //current-index
     useEffect(() => {
-        // Reset currentIndex if it becomes out of bounds
         if (currentIndex >= words.length) {
             setCurrentIndex(Math.max(words.length - 1, 0));
         }
     }, [words, currentIndex]);
-    //current-user
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -51,7 +49,7 @@ const Home = () => {
             }
         }
     }, [token]);
-    //fetch-sets
+
     useEffect(() => {
         if (currentUser && currentUser.userID) {
             console.log("User set in fetchSets", currentUser.userID)
@@ -74,7 +72,7 @@ const Home = () => {
         console.log("Current User updated:", currentUser);
     }, [currentUser]);
     
-    //fetch-words
+
     useEffect(() => {
         if (isLoggedIn && currentSet && currentUser) {
             const fetchWords = async () => {
@@ -83,10 +81,10 @@ const Home = () => {
                     console.log("in fetch words currentUser:", currentUser);
                     const fetchedWords = await showAllWords(currentUser.userID, currentSet);
                     console.log("Fetched words:", fetchedWords);
-                    setWords(fetchedWords || []); // Set to empty array if null
+                    setWords(fetchedWords || []);
                 } catch (error) {
                     console.error("Error fetching words:", error);
-                    setWords([]); // Set to empty array in case of error
+                    setWords([]); 
                 }
             };
     
@@ -96,11 +94,10 @@ const Home = () => {
     const handleLoginSuccess = () => {
         setIsLoggedIn(true)
     }
-    //flag
+
     const getFlagImagePath = (setName) => {
-        // Replace spaces and lowercase
         const formattedName = setName.replace(/\s+/g, '').toLowerCase();
-        return `/images/${formattedName}.png`; // Adjust path based on your folder structure
+        return `/images/${formattedName}.png`; 
       };
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -111,10 +108,9 @@ const Home = () => {
         const currentWord = words[currentIndex]?.word;
     
         if (unseenWords.length === 0) {
-            return 0; // No unseen words left, reset to 0
+            return 0; 
         }
-    
-        // Update the seen status of the current word
+
         if (currentWord) {
             updateSeen(currentWord, currentUser.userID, currentSet)
                 .then(() => {
@@ -126,8 +122,7 @@ const Home = () => {
         }
         setShowDefinition(false);
         setShowNext(false);
-    
-        // Move to the next word
+
         setCurrentIndex(prevIndex => {
             let nextIndex = (prevIndex + 1) % unseenWords.length;
             return words.findIndex(wordObj => wordObj.word === unseenWords[nextIndex].word);
@@ -138,7 +133,7 @@ const Home = () => {
     const handleIncorrectNext = () => {
     
         if (unseenWords.length === 0) {
-            return 0; // No unseen words left, reset to 0
+            return 0; 
         }
         setShowDefinition(false);
         setShowNext(false);
@@ -150,14 +145,14 @@ const Home = () => {
     };
     
     const handleSeen = (wordToMarkAsSeen) => {
-        console.log("Words before update:", words); // Before update
+        console.log("Words before update:", words); 
         const updatedWords = words.map(wordObj => {
             if (wordObj.word === wordToMarkAsSeen) {
                 return { ...wordObj, seen: true };
             }
             return wordObj;
         });
-        console.log("Words after update:", updatedWords); // After update
+        console.log("Words after update:", updatedWords);
         console.log(unseenWords)
         setWords(updatedWords);
     };
@@ -167,7 +162,7 @@ const Home = () => {
         console.log("Deleting word:", wordToDelete);
         console.log("Current words state:", words);
     
-        deleteWord(wordToDelete, currentUser.userID, currentSet)
+        deleteWord(wordToDelete, currentUser.userID, currentSet.setId)
             .then(() => {
                 const updatedWords = words.filter((word) => word.word !== wordToDelete);
                 setWords(updatedWords);
@@ -177,7 +172,6 @@ const Home = () => {
             })
             .catch(error => {
                 console.error('Error deleting word', error);
-                // Handle delete error
             });
     };
     
@@ -197,8 +191,8 @@ const Home = () => {
         setWords(newWordsArray);
     };
 
-    const handleSetSelection = (setId) => {
-        setCurrentSet(setId)
+    const handleSetSelection = (set) => {
+        setCurrentSet(set)
     }
    
      
@@ -235,7 +229,7 @@ const Home = () => {
                         <h1>Welcome {currentUser.username}, You have {sets.length} sets!</h1>
                             <div className="set-container">
                                 {sets.map(set => (
-                                 <button key={set.setId} className="image-button" onClick={handleSetSelection}>
+                                 <button key={set.setId} className="image-button" onClick={handleSetSelection(set)}>
                                     <img src={getFlagImagePath(set.setName)} alt={`${set.setName} flag`} />
                                         <span className="card-title">{set.setName}</span>
                                     </button>
@@ -270,7 +264,7 @@ const Home = () => {
                     )}
                 </div>
             ) : (
-                <h1>Loading...</h1> // or any placeholder you prefer
+                <h1>Loading...</h1> 
             )}
         </div>
         </div>

@@ -22,6 +22,7 @@ function Flashcard({word, definition, showDefinition, setShowDefinition, onDelet
         <div>
             {unseenWords.length === 0 ? (
                  <>
+                 
                  <p>Well done! You've finished for today!</p>
                  <button className="button add-button" onClick={() => setIsAddModalOpen(true)}>Add New Word</button>
                  <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>

@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-    // Initialize the SQL database
     db, err := sql.Open("sqlite3", "./dictionary.db")
     if err != nil {
         log.Fatal(err)
@@ -116,14 +115,12 @@ func main() {
 	
 
 
-	// if err := seedDatabase(db); err != nil {
+	// if err := database.SeedDatabase(db); err != nil {
     //     log.Fatal("Error seeding the database:", err)
     // }
 
-
 	services.StartDailyResetTask(db)
 	
-    // Only one call to ListenAndServe
     fmt.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
         log.Fatal("Error starting server: ", err)

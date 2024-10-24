@@ -12,7 +12,7 @@ function UpdateWord({word: initialWord, definition: initialDefinition, onClose, 
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-          await updateWord(initialWord, word, definition, currentUser.userID, currentSet);
+          await updateWord(initialWord, word, definition, currentUser.userID, currentSet.setId);
           setMessage(`${word} updated successfully! New definition: ${definition}`);
           onUpdate(initialWord, word, definition); // Notify parent component
           onClose(); // Close the update form

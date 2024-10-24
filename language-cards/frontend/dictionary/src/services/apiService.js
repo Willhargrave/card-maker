@@ -5,12 +5,17 @@ const addWord = async (word, definition, userID, setId) => {
         const response = await axios.post('http://localhost:8080/add-word', {
             word,
             definition,
-            userID,
+            UserID: userID,
             setId 
         });
         return response.data;
     } catch (error) {
-        console.error('Error adding word', error);
+        console.error('Request that failed:', {
+            word,
+            definition,
+            UserID: userID,
+            setId: setId
+        });
         throw error;
     }
 }
