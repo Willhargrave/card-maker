@@ -14,10 +14,10 @@ function UpdateWord({word: initialWord, definition: initialDefinition, onClose, 
       try {
           await updateWord(initialWord, word, definition, currentUser.userID, currentSet.setId);
           setMessage(`${word} updated successfully! New definition: ${definition}`);
-          onUpdate(initialWord, word, definition); // Notify parent component
-          onClose(); // Close the update form
+          onUpdate(initialWord, word, definition); 
+          onClose(); 
       } catch (error) {
-          setMessage(error.message); // Display error message
+          setMessage(error.message); 
       }
   };
 

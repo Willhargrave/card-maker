@@ -112,7 +112,7 @@ const Home = () => {
         }
 
         if (currentWord) {
-            updateSeen(currentWord, currentUser.userID, currentSet)
+            updateSeen(currentWord, currentUser.userID, currentSet.setId)
                 .then(() => {
                     handleSeen(currentWord);
                 })
