@@ -1,16 +1,16 @@
 .word-container {
-    color: #333; /* Or any color that fits your design */
-    margin-top: 0px; /* Space below the word */
-    text-align: center; /* Center the word */
+    color: #333;
+    margin-top: 0px; 
+    text-align: center;
     font-size: 25px;
 }
 
 .displayed-word {
-    font-size: 84px; /* Adjust size as needed */
+    font-size: 84px; 
 }
 .buttons-container {
-    display: flex; /* Enable flexbox */
-    justify-content: space-around; /* Space out the buttons evenly */
-    align-items: center; /* Align buttons vertically in the center */
-    margin: 10px 0; /* Margin for spacing around the container */
+    display: flex;
+    justify-content: space-around; 
+    align-items: center; 
+    margin: 10px 0;
 }

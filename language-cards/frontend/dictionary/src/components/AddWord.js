@@ -1,7 +1,6 @@
 import React, {useState} from 'react'
 import addWord from '../services/apiService';
-import "../styles/modal.css"
-import "../styles/form.css"
+
 function AddWord({ onAdd, onClose, currentUser, currentSet }) {
   const [word, setWord] = useState('');
   const [definition, setDefinition] = useState('');
@@ -29,14 +28,30 @@ function AddWord({ onAdd, onClose, currentUser, currentSet }) {
 };
 
     return (
-        <div>
-        <form onSubmit={handleSubmit} className='form-container'>
-          <input type="text" value={word} onChange={(e) => setWord(e.target.value)} placeholder="Word" className='input-field'required/>
-          <input type="text" value={definition} onChange={(e) => setDefinition(e.target.value)} placeholder="Definition" className='input-field' required />
-          <button type="submit" className='submit-button'>Add Word</button>
-        </form>
-        {message && <p>{message}</p>}
-      </div>
+      <div>
+      <form onSubmit={handleSubmit} className="bg-white p-5 rounded">
+          <input 
+              type="text" 
+              value={word} 
+              onChange={(e) => setWord(e.target.value)} 
+              placeholder="Word" 
+              className="w-[calc(100%-30px)] p-2.5 mb-4 border border-gray-300 rounded box-border"
+              required
+          />
+          <input 
+              type="text" 
+              value={definition} 
+              onChange={(e) => setDefinition(e.target.value)} 
+              placeholder="Definition" 
+              className="w-[calc(100%-30px)] p-2.5 mb-4 border border-gray-300 rounded box-border"
+              required
+          />
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2.5 border-none rounded cursor-pointer transition-colors duration-300 hover:opacity-90 mr-2.5">
+              Add Word
+          </button>
+      </form>
+      {message && <p>{message}</p>}
+  </div>
     );
   }
   

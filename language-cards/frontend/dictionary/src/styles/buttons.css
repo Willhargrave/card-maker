@@ -96,12 +96,12 @@
 }
 
 .button.correct-button:hover {
-    background-color: #367c39; /* Darker green on hover */
+    background-color: #367c39; ]
 }
 
 /* Styles for Wrong button */
 .button.wrong-button {
-    background-color: #f44336; /* Red background for wrong */
+    background-color: #f44336; 
     color: white;
     border: none;
     padding: 10px 20px;
@@ -112,7 +112,7 @@
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;
-    box-shadow: 0 4px 8px 0 rgba(255, 0, 0, 0.2); /* Slight shadow for depth */
+    box-shadow: 0 4px 8px 0 rgba(255, 0, 0, 0.2); 
     transition: background-color 0.3s ease;
 }
 

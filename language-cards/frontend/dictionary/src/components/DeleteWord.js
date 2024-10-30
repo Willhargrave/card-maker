@@ -21,7 +21,7 @@ function DeleteWord({ currentUser, currentSet }) {
         <div>
             <form onSubmit={handleSubmit}>
                 <input type="text" value={word} onChange={(e) => setWord(e.target.value)} placeholder="Word" required />
-                <button type="submit">Delete</button>
+                <button type="bg-blue-500 text-white px-4 py-2.5 border-none rounded cursor-pointer transition-colors duration-300 hover:opacity-90 mr-2.5">Delete</button>
             </form>
             {message && <p>{message}</p>}
         </div>

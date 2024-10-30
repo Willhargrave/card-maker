@@ -1,17 +1,17 @@
 .form-container {
-    background-color: #fff; /* Match modal background */
-    padding: 20px; /* Slightly more padding for better spacing */
-    border-radius: 5px; /* Match modal's border-radius */
-    box-shadow: none; /* Remove shadow as modal already has it */
-    margin: 0; /* No need for extra margin inside the modal */
-    width: auto; /* Let it naturally fit the modal's width */
+    background-color: #fff;
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: none; 
+    margin: 0; 
+    width: auto; 
 }
 
 .input-field {
-    width: calc(100% - 30px); /* Adjust width to consider padding */
+    width: calc(100% - 30px); 
     padding: 10px;
-    margin-bottom: 15px; /* Slightly more space between fields */
-    border: 1px solid #ccc; /* Lighter border color */
+    margin-bottom: 15px; 
+    border: 1px solid #ccc; 
     border-radius: 4px;
     box-sizing: border-box;
 }

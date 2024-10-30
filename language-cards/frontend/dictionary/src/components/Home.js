@@ -10,8 +10,8 @@ import Register from "./Register";
 import CreateSets from "./CreateSets";
 import Modal from "./Modal";
 import {jwtDecode} from 'jwt-decode';
-import "../styles/home.css"
-import "../styles/buttons.css"
+import "../index.css"
+
 const Home = () => {
     const [words, setWords] = useState([]);
     const [sets, setSets] = useState([])
@@ -19,12 +19,30 @@ const Home = () => {
     const [currentSet, setCurrentSet] = useState(null)
     const [showNext, setShowNext] = useState(false)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-    const [showDefinition, setShowDefinition] = useState(false);
+    const [showDefinition, setShowDefinition] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isRegistering, setIsRegistering] = useState(false)
-    const unseenWords = Array.isArray(words) ? words.filter(wordObj => !wordObj.seen) : [];
+    const [unseenWords, setUnseenWords] = useState([])
     const token = localStorage.getItem('token');
+    
+    console.log("Home rendering with showDefinition:", showDefinition);
+
+    const handleShowDefinitionClick = () => {
+        setShowDefinition(prev => {
+            const newShowDefinition = !prev;
+            setShowNext(!prev); 
+            return newShowDefinition;
+        });
+    };
+    
+    useEffect(() => {
+        if (Array.isArray(words)) {
+            setUnseenWords(words.filter(wordObj => !wordObj.seen));
+        } else {
+            setUnseenWords([]);
+        }
+    }, [words]);
     
     useEffect(() => {
         if (currentIndex >= words.length) {
@@ -104,6 +122,7 @@ const Home = () => {
         setIsLoggedIn(false);
         setCurrentUser(null);
     };
+
     const handleCorrectNext = () => {
         const currentWord = words[currentIndex]?.word;
     
@@ -200,7 +219,7 @@ const Home = () => {
         return (
             <div>
             <Header />
-            <div className="login-container">
+            <div className="max-w-[400px] mx-auto p-5 border border-gray-200 rounded-lg shadow-sm">
                 {isRegistering ? (
                     <Register onRegister={() => setIsRegistering(false)} setIsLoggedIn={setIsLoggedIn} onLoginSuccess={handleLoginSuccess} />
                 ) : (
@@ -218,7 +237,7 @@ const Home = () => {
     return (
         <div>
         <Header handleLogout={handleLogout} isLoggedIn={isLoggedIn} setIsCreateModalOpen={setIsCreateModalOpen}/>
-        <div className="home-container">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] mb-10">
             {currentUser ? (
                 <div>
                     <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
@@ -227,28 +246,28 @@ const Home = () => {
                     {!currentSet ? (
                         <div>
                         <h1>Welcome {currentUser.username}, You have {sets.length} sets!</h1>
-                            <div className="set-container">
-                                {sets.map(set => (
-                                 <button key={set.setId} className="image-button" onClick={handleSetSelection(set)}>
+                        <div className="grid grid-cols-3 gap-2.5 p-2.5 items-center justify-center">                                {sets.map(set => (
+                                 <button key={set.setId} className="border-2 border-black bg-none p-0 cursor-pointer block w-full h-full hover:brightness-110" onClick={() => handleSetSelection(set)}>
                                     <img src={getFlagImagePath(set.setName)} alt={`${set.setName} flag`} />
-                                        <span className="card-title">{set.setName}</span>
+                                        <span className="text-3xl font-bold">{set.setName}</span>
                                     </button>
                         ))}
                             </div>
                         </div>
                     ) : (
-                        <div className="main-container">
-                                <h1>You have {unseenWords.length} {unseenWords.length === 1 ? "word" : "words"} remaining today </h1>
-                             <div className="card">
+                        <div className="flex flex-col items-center justify-center w-4/5 min-h-[40vh] mb-12">
+                            <h1 className="whitespace-nowrap max-w-full">You have {unseenWords.length} {unseenWords.length === 1 ? "word" : "words"} remaining today </h1>
+                            <div className="bg-white shadow-md p-20 mx-auto my-2.5 rounded-lg w-4/5 max-w-[600px]">
                                 <Flashcard
-                                    word={words[currentIndex]?.word || ""}
+                                    word={unseenWords[currentIndex]?.word || ""}
                                     words={words}
-                                    definition={words[currentIndex]?.definition || ""}
+                                    definition={unseenWords[currentIndex]?.definition || ""}
                                     showDefinition={showDefinition}
                                     setShowDefinition={setShowDefinition}
                                     onDelete={handleDelete}
                                     showNext={showNext}
                                     setShowNext={setShowNext}
+                                    onShowDefinitionClick={handleShowDefinitionClick}
                                     onUpdate={handleUpdate}
                                     onAdd={handleAddWord}
                                     onCorrect={handleCorrectNext}
@@ -264,10 +283,10 @@ const Home = () => {
                     )}
                 </div>
             ) : (
-                <h1>Loading...</h1> 
-            )}
+                <h1>Loading...</h1>
+             )}
         </div>
-        </div>
+    </div>
 )};
 
 export default Home;
