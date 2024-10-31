@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import createSet from "../services/createSetService";
+import createSet from "../../services/createSetService";
 
 function CreateSets({currentUser, onClose}) {
    const [setName, setSetName] = useState('');

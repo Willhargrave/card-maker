@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Flashcard from "./Flashcard";
-import showAllWords from "../services/showServive";
-import fetchUserSets from "../services/fetchSetService";
-import updateSeen from "../services/seenService";
-import AuthForm from "./AuthForm";
+import Flashcard from "../common/cards/Flashcard";
+import showAllWords from "../../services/showServive";
+import fetchUserSets from "../../services/fetchSetService";
+import updateSeen from "../../services/seenService";
+import AuthForm from "../common/forms/AuthForm";
 import Header from "./Header";
-import deleteWord from "../services/deleteService";
-import CreateSets from "./CreateSets";
-import Modal from "./Modal";
+import deleteWord from "../../services/deleteService";
+import CreateSets from "../common/CreateSets";
+import Modal from "../common/cards/Modal";
 import {jwtDecode} from 'jwt-decode';
 
 
@@ -24,7 +24,6 @@ const Home = () => {
     const [unseenWords, setUnseenWords] = useState([])
     const token = localStorage.getItem('token');
     
-    console.log("Home rendering with showDefinition:", showDefinition);
 
     const handleShowDefinitionClick = () => {
         setShowDefinition(prev => {
@@ -250,8 +249,10 @@ const Home = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center w-4/5 min-h-[40vh] mb-12">
-                            <h1 className="whitespace-nowrap max-w-full">You have {unseenWords.length} {unseenWords.length === 1 ? "word" : "words"} remaining today </h1>
-                            <div className="bg-white shadow-md p-20 mx-auto my-2.5 rounded-lg w-4/5 max-w-[600px]">
+                        <h1 className="text-2xl font-semibold mb-8">
+                            You have {unseenWords.length} {unseenWords.length === 1 ? "word" : "words"} remaining today
+                        </h1>
+                        <div className="bg-white shadow-lg rounded-lg p-12 w-full max-w-3xl">
                                 <Flashcard
                                     word={unseenWords[currentIndex]?.word || ""}
                                     words={words}

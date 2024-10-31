@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import login from '../services/loginService';
-import register from '../services/registerService';
+import login from '../../../services/loginService';
+import register from '../../../services/registerService';
 
 function AuthForm({ setIsLoggedIn, onSuccess }) {
     const [isRegistering, setIsRegistering] = useState(false);
