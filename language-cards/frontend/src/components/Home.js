@@ -10,7 +10,7 @@ import Register from "./Register";
 import CreateSets from "./CreateSets";
 import Modal from "./Modal";
 import {jwtDecode} from 'jwt-decode';
-import "../index.css"
+
 
 const Home = () => {
     const [words, setWords] = useState([]);
