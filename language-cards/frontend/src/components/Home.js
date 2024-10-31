@@ -3,10 +3,9 @@ import Flashcard from "./Flashcard";
 import showAllWords from "../services/showServive";
 import fetchUserSets from "../services/fetchSetService";
 import updateSeen from "../services/seenService";
-import Login from "./Login";
+import AuthForm from "./AuthForm";
 import Header from "./Header";
 import deleteWord from "../services/deleteService";
-import Register from "./Register";
 import CreateSets from "./CreateSets";
 import Modal from "./Modal";
 import {jwtDecode} from 'jwt-decode';
@@ -22,7 +21,6 @@ const Home = () => {
     const [showDefinition, setShowDefinition] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [isRegistering, setIsRegistering] = useState(false)
     const [unseenWords, setUnseenWords] = useState([])
     const token = localStorage.getItem('token');
     
@@ -219,16 +217,12 @@ const Home = () => {
         return (
             <div>
             <Header />
-            <div className="max-w-[400px] mx-auto p-5 border border-gray-200 rounded-lg shadow-sm">
-                {isRegistering ? (
-                    <Register onRegister={() => setIsRegistering(false)} setIsLoggedIn={setIsLoggedIn} onLoginSuccess={handleLoginSuccess} />
-                ) : (
-                    <>
-                        <Login onLogin={() => setIsLoggedIn(true)} setIsLoggedIn={setIsLoggedIn} loginSuccess={handleLoginSuccess}/>
-                        <button onClick={() => setIsRegistering(true)} className="register-button">Register</button>
-                    </>
-                )}
-            </div>
+                <div>
+                <AuthForm 
+                setIsLoggedIn={setIsLoggedIn} 
+                onSuccess={handleLoginSuccess}
+                />
+                </div>
             </div>
         );
         
