@@ -7,7 +7,6 @@ const login = async (username, password) => {
             username,
             password
         });
-        console.log('Login response:', response);
         return response;
     } catch (error) {
         console.error('Error during login', error);

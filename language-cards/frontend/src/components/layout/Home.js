@@ -57,8 +57,6 @@ const Home = () => {
                     username: decodedToken.username,
                     userID: decodedToken.UserID 
                 });
-                console.log("Current User token:", decodedToken, decodedToken.username, decodedToken.UserID); 
-                console.log("Current User:", currentUser)
             } catch (error) {
                 console.error('Error decoding the token:', error);
             }
@@ -67,12 +65,9 @@ const Home = () => {
 
     useEffect(() => {
         if (currentUser && currentUser.userID) {
-            console.log("User set in fetchSets", currentUser.userID)
             const fetchSets = async () => {
-                console.log("Fetching sets for user:", currentUser.UserID);
                 try {
                     const userSets = await fetchUserSets(currentUser.UserID);
-                    console.log("Fetched sets:", userSets);
                     setSets(userSets || []);
                 } catch (error) {
                     console.error("Error fetching sets:", error);
@@ -83,19 +78,13 @@ const Home = () => {
     }, [currentUser]);
     
 
-    useEffect(() => {
-        console.log("Current User updated:", currentUser);
-    }, [currentUser]);
     
 
     useEffect(() => {
         if (isLoggedIn && currentSet && currentUser) {
             const fetchWords = async () => {
                 try {
-                    console.log("in fetch words currentSet:", currentSet);
-                    console.log("in fetch words currentUser:", currentUser);
                     const fetchedWords = await showAllWords(currentUser.userID, currentSet);
-                    console.log("Fetched words:", fetchedWords);
                     setWords(fetchedWords || []);
                 } catch (error) {
                     console.error("Error fetching words:", error);
@@ -161,22 +150,17 @@ const Home = () => {
     };
     
     const handleSeen = (wordToMarkAsSeen) => {
-        console.log("Words before update:", words); 
         const updatedWords = words.map(wordObj => {
             if (wordObj.word === wordToMarkAsSeen) {
                 return { ...wordObj, seen: true };
             }
             return wordObj;
         });
-        console.log("Words after update:", updatedWords);
-        console.log(unseenWords)
         setWords(updatedWords);
     };
     
 
     const handleDelete = (wordToDelete) => {
-        console.log("Deleting word:", wordToDelete);
-        console.log("Current words state:", words);
     
         deleteWord(wordToDelete, currentUser.userID, currentSet.setId)
             .then(() => {
@@ -248,11 +232,11 @@ const Home = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center w-4/5 min-h-[40vh] mb-12">
+                        <div className="shadow-lg flex flex-col items-center p-12 justify-center w-4/5 min-h-[40vh] mb-12 ">
                         <h1 className="text-2xl font-semibold mb-8">
                             You have {unseenWords.length} {unseenWords.length === 1 ? "word" : "words"} remaining today
                         </h1>
-                        <div className="bg-white shadow-lg rounded-lg p-12 w-full max-w-3xl">
+                        <div className="rounded-lg p-12 w-full max-w-3xl ">
                                 <Flashcard
                                     word={unseenWords[currentIndex]?.word || ""}
                                     words={words}

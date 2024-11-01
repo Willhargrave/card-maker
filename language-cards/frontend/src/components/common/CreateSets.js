@@ -5,10 +5,6 @@ function CreateSets({currentUser, onClose}) {
    const [setName, setSetName] = useState('');
    const [message, setMessage] = useState('');
    
-   useEffect(() => {
-    console.log("Current User in CreateSets:", currentUser);
-    }, [currentUser]);
-
 
 
    const handleSubmit = async (e) => {
@@ -17,14 +13,9 @@ function CreateSets({currentUser, onClose}) {
     try {
         const response = await createSet(currentUser.userID, setName);
         setMessage(`Set "${setName}" created successfully!`);
-        console.log("Set created with UserID:", currentUser.userID, "and SetName:", setName);
     } catch (error) {
-        console.error('Error creating set:', error);
         setMessage('Error creating set');
-    }
-} else {
-    console.log("UserID is undefined in CreateSets")
-}
+    }} 
 };
 
    return (

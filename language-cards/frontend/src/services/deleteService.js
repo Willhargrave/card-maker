@@ -3,15 +3,18 @@ import axios from 'axios'
 const deleteWord = async (word, userID, setId) => {
     try {
         const url = `http://localhost:8080/delete`;
+        const payload = { word, UserID: userID, setId };
+        console.log('Delete payload before sending:', JSON.stringify(payload, null, 2));
+        
         const response = await axios.delete(url, {
-            data: { word, UserID: userID, setId } // Sending data in the request body
+            data: payload
         });
         return response.data;
     } catch (error) {
-        console.error('Request that failed:', {
-            word,
-            UserID: userID,
-            setId: setId});
+        console.error('Delete request failed:', {
+            sentPayload: { word, UserID: userID, setId },
+            error: error.response?.data
+        });
         throw error;
     }
 };
